@@ -5,42 +5,86 @@ export default function Home() {
   const [splitSizes, setSplitSizes] = useState(null)
   const [trainSize, setTrainSize] = useState(70)
   const [valSize, setValSize] = useState(15)
+  const [selectedFile, setSelectedFile] = useState(null)
+  const [model, setModel] = useState("")
 
   const handleSplit = async () => {
+    if (!selectedFile) {
+      alert("Please upload a file before proceeding.")
+      return
+    }
+
     try {
-      const response = await fetch(
-        `http://localhost:8000/split-data?train_size=${trainSize/100}&val_size=${valSize/100}`
-      )
+      const formData = new FormData()
+      formData.append("file", selectedFile)
+      formData.append("train_size", trainSize / 100)
+      formData.append("val_size", valSize / 100)
+
+      const response = await fetch("http://localhost:8000/split-data", {
+        method: "POST",
+        body: formData,
+      })
+
       const data = await response.json()
       setSplitSizes(data.split_sizes)
     } catch (error) {
-      console.error('Error:', error)
+      console.error("Error:", error)
     }
+  }
+
+  const handleFileChange = (event) => {
+    setSelectedFile(event.target.files[0])
   }
 
   return (
     <main className="p-8 space-y-6">
       <h1 className="text-4xl font-extrabold mb-6">ML Platform Prototype</h1>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+      <div className="space-y-4">
         <div>
-          <label className="block text-lg font-medium mb-2">Training Set (%):</label>
+          <label className="block text-lg font-medium mb-2">Upload Dataset (CSV):</label>
           <input 
-            type="number" 
-            value={trainSize} 
-            onChange={(e) => setTrainSize(Number(e.target.value))}
+            type="file" 
+            accept=".csv"
+            onChange={handleFileChange}
             className="w-full border rounded px-3 py-2 text-gray-700 focus:outline-none focus:ring focus:ring-blue-300"
           />
         </div>
 
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div>
+            <label className="block text-lg font-medium mb-2">Training Set (%):</label>
+            <input 
+              type="number" 
+              value={trainSize} 
+              onChange={(e) => setTrainSize(Number(e.target.value))}
+              className="w-full border rounded px-3 py-2 text-gray-700 focus:outline-none focus:ring focus:ring-blue-300"
+            />
+          </div>
+
+          <div>
+            <label className="block text-lg font-medium mb-2">Validation Set (%):</label>
+            <input 
+              type="number" 
+              value={valSize} 
+              onChange={(e) => setValSize(Number(e.target.value))}
+              className="w-full border rounded px-3 py-2 text-gray-700 focus:outline-none focus:ring focus:ring-blue-300"
+            />
+          </div>
+        </div>
+
         <div>
-          <label className="block text-lg font-medium mb-2">Validation Set (%):</label>
-          <input 
-            type="number" 
-            value={valSize} 
-            onChange={(e) => setValSize(Number(e.target.value))}
+          <label className="block text-lg font-medium mb-2">Select ML Model:</label>
+          <select 
+            value={model} 
+            onChange={(e) => setModel(e.target.value)}
             className="w-full border rounded px-3 py-2 text-gray-700 focus:outline-none focus:ring focus:ring-blue-300"
-          />
+          >
+            <option value="">-- Select a Model --</option>
+            <option value="linear_regression">Linear Regression</option>
+            <option value="random_forest">Random Forest</option>
+            <option value="svm">Support Vector Machine</option>
+          </select>
         </div>
       </div>
 
