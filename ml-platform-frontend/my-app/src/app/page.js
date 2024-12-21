@@ -39,7 +39,7 @@ export default function Home() {
   }
 
   return (
-    <main className="p-8 space-y-6 bg-black text-white min-h-screen">
+    <main className="p-8 space-y-6 bg-white text-black min-h-screen">
       <h1 className="text-4xl font-extrabold mb-6">ML Platform Prototype</h1>
 
       <div className="space-y-4">
