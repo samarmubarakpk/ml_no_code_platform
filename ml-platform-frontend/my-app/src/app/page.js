@@ -1,3 +1,4 @@
+// src/app/page.js
 'use client'
 import { useState } from 'react'
 
@@ -19,46 +20,48 @@ export default function Home() {
   }
 
   return (
-    <main className="p-8">
-      <h1 className="text-2xl font-bold mb-4">ML Platform Prototype</h1>
-      
-      <div className="space-y-4">
+    <main className="p-8 space-y-6">
+      <h1 className="text-4xl font-extrabold mb-6">ML Platform Prototype</h1>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         <div>
-          <label>Training Set (%): </label>
+          <label className="block text-lg font-medium mb-2">Training Set (%):</label>
           <input 
             type="number" 
             value={trainSize} 
             onChange={(e) => setTrainSize(Number(e.target.value))}
-            className="border p-1"
+            className="w-full border rounded px-3 py-2 text-gray-700 focus:outline-none focus:ring focus:ring-blue-300"
           />
         </div>
 
         <div>
-          <label>Validation Set (%): </label>
+          <label className="block text-lg font-medium mb-2">Validation Set (%):</label>
           <input 
             type="number" 
             value={valSize} 
             onChange={(e) => setValSize(Number(e.target.value))}
-            className="border p-1"
+            className="w-full border rounded px-3 py-2 text-gray-700 focus:outline-none focus:ring focus:ring-blue-300"
           />
         </div>
-
-        <button 
-          onClick={handleSplit}
-          className="bg-blue-500 text-white px-4 py-2 rounded"
-        >
-          Split Data
-        </button>
-
-        {splitSizes && (
-          <div className="mt-4">
-            <h2 className="text-xl font-bold">Results:</h2>
-            <p>Training Set: {splitSizes.train_size} samples</p>
-            <p>Validation Set: {splitSizes.val_size} samples</p>
-            <p>Test Set: {splitSizes.test_size} samples</p>
-          </div>
-        )}
       </div>
+
+      <button 
+        onClick={handleSplit}
+        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded transition duration-300"
+      >
+        Split Data
+      </button>
+
+      {splitSizes && (
+        <div className="mt-6 bg-gray-100 p-4 rounded-lg shadow">
+          <h2 className="text-2xl font-bold mb-4">Results:</h2>
+          <ul className="space-y-2 text-lg">
+            <li><strong>Training Set:</strong> {splitSizes.train_size} samples</li>
+            <li><strong>Validation Set:</strong> {splitSizes.val_size} samples</li>
+            <li><strong>Test Set:</strong> {splitSizes.test_size} samples</li>
+          </ul>
+        </div>
+      )}
     </main>
   )
 }
