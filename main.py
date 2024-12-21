@@ -1,53 +1,39 @@
-import sys
+from fastapi import FastAPI, UploadFile, File
+from fastapi.middleware.cors import CORSMiddleware
+import pandas as pd
 from src.components.data_splitter import DataSplitter
 from src.components.data_preprocessor import DataPreprocessor
-from src.utils.validation import validate_dataset
-import pandas as pd
 
+app = FastAPI()
 
+# Allow frontend to connect
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],  # Your React app will run here
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-def main():
-    # Example usage
-    # Load your dataset
-    data = pd.read_csv('your_dataset.csv')  # Replace with your dataset
+@app.get("/")
+async def root():
+    return {"message": "ML Platform API is running"}
+
+@app.post("/split-data")
+async def split_data(train_size: float = 0.7, val_size: float = 0.15):
+    # For prototype, using a simple example dataset
+    data = pd.DataFrame({
+        'feature1': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+        'feature2': [10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+        'target': [0, 1, 0, 1, 0, 1, 0, 1, 0, 1]
+    })
     
-    try:
-        # Validate dataset
-        validate_dataset(data)
-        
-        # Initialize components
-        splitter = DataSplitter()
-        preprocessor = DataPreprocessor()
-        
-        # Preprocess data
-        scaled_data = preprocessor.fit_transform(
-            data,
-            method='standard',
-            columns=['feature1', 'feature2']  # Replace with your feature columns
-        )
-        
-        # Split data
-        splits = splitter.split_data(
-            scaled_data,
-            target_column='target',  # Replace with your target column
-            train_size=0.7,
-            val_size=0.15
-        )
-        
-        # Get split sizes
-        split_sizes = splitter.get_split_sizes()
-        print("Dataset splits:", split_sizes)
-        
-        # Access individual splits
-        X_train = splits['X_train']
-        y_train = splits['y_train']
-        # ... access other splits as needed
-        
-    except Exception as e:
-        print(f"Error processing dataset: {str(e)}")
+    splitter = DataSplitter()
+    splits = splitter.split_data(data, 'target', train_size, val_size)
+    sizes = splitter.get_split_sizes()
+    
+    return {"split_sizes": sizes}
 
 if __name__ == "__main__":
-    main()
-
-
-
+    import uvicorn
+    uvicorn.run(app, host="127.0.0.1", port=8000)
